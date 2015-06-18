@@ -62,6 +62,8 @@ Routes may be triggered by clicking links in the document.  To enable this featu
 
 Calling `router.stop()` stops the router listening for clicks on links.  You may call `router.start()` again at any time to re-enable links.
 
+Note that click events are listened to on the document in event bubbling mode.  Clicking on any child of a correctly set up `<a>` element will trigger the router, unless you set a `click` handler that stops the event propagation.
+
 Routes can also be triggered programmatically by calling `router.navigate()` (which pushes the new route on the browser history, unless asked otherwise) or `router.replace()` (which replaces the current history item).  See the documentation for those methods in the [API section](#API) below.
 
 ## Holders: preventing navigation

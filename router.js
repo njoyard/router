@@ -1,3 +1,11 @@
+/**
+ * @license
+ * Simple Javascript router
+ *  version 0.0.1
+ *  copyright (c) 2012-2015, Nicolas JOYARD <joyard dot nicolas at gmail dot com>
+ *  license: MIT
+ */
+
 /*jshint browser:true*/
 /*global define*/
 'use strict';
@@ -6,6 +14,7 @@ define([], function() {
   var routes = {};
   var clickHandler;
   var popstateHandler;
+  var currentHolder;
 
   function buildRequest(hash, match, vars, link, modifiers) {
     var req = { _path: hash, _link: link, _mod: modifiers };
@@ -38,6 +47,22 @@ define([], function() {
     }
 
     return null;
+  }
+
+
+  function handleHolder(isAction, cb) {
+    if (isAction || !currentHolder) {
+      return cb();
+    }
+
+    function goOn() {
+      currentHolder = null;
+      cb();
+    }
+
+    if (currentHolder(goOn) === true) {
+      goOn();
+    }
   }
 
 
@@ -142,41 +167,62 @@ define([], function() {
       }
     },
 
-    replace: function(hash) {
+    replace: function(hash, link, modifiers) {
       if (hash[0] === '!') {
-        return this.navigate(hash);
+        return this.navigate(hash, link, modifiers);
       }
 
       history.replaceState(null, null, '#' + hash);
-      this.navigate(hash, null, null, true);
+      this.navigate(hash, link, modifiers, true);
     },
 
-    navigate: function (hash, link, modifiers, dontPushState) {
+    navigate: function(hash, link, modifiers, dontPushState) {
       var isAction = hash[0] === '!';
 
-      if (isAction) {
-        hash = hash.substr(1);
-      } else if (!dontPushState) {
-        history.pushState(null, null, '#' + hash);
-      }
-
-      if (hash[0] === '/') {
-        hash = hash.substr(1);
-      }
-
-      var candidates = Object.keys(routes).filter(function(r) { return routes[r].isAction === isAction; });
-      while (candidates.length) {
-        var candidate = routes[candidates.shift()];
-        var match = hash.match(candidate.regexp);
-
-        if (match) {
-          var req = buildRequest(hash, match, candidate.variables, link, modifiers);
-          candidate.handler.call(null, req);
-          return;
+      handleHolder(function() {
+        if (isAction) {
+          hash = hash.substr(1);
+        } else if (!dontPushState) {
+          history.pushState(null, null, '#' + hash);
         }
+
+        if (hash[0] === '/') {
+          hash = hash.substr(1);
+        }
+
+        var candidates = Object.keys(routes).filter(function(r) { return routes[r].isAction === isAction; });
+        while (candidates.length) {
+          var candidate = routes[candidates.shift()];
+          var match = hash.match(candidate.regexp);
+
+          if (match) {
+            var req = buildRequest(hash, match, candidate.variables, link, modifiers);
+            candidate.handler.call(null, req);
+            return;
+          }
+        }
+
+        throw new Error('No route matches #' + (isAction ? '!' : '') + hash);
+      });
+    },
+
+    hold: function(holder) {
+      if (holder && currentHolder) {
+        throw new Error('A holder is already in place');
       }
 
-      throw new Error('No route matches #' + (isAction ? '!' : '') + hash);
+      currentHolder = holder;
+    },
+
+    url: function(/* route[, args...] */) {
+      var args = [].slice.call(arguments);
+      var route = args.shift();
+
+      while (args.length) {
+        route = route.replace(/:[^/]*/, encodeURIComponent(args.shift()));
+      }
+
+      return route;
     }
   };
 });

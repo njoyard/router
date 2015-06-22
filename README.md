@@ -107,7 +107,7 @@ router.hold(function(accept) {
 Notes:
 * Holders may be unset by calling `router.hold()` without any parameters.
 * When accepting navigation, the holder is unset.  You must set it again if you need it.
-* You should not both return `true` and call the holder callback, as this would cause the pending navigation to occur twice.
+* If a holder returns `true`, calling the callback later has no effect.
 
 ## API
 
@@ -141,7 +141,7 @@ Works identical to `router.navigate()` but replaces the current navigator histor
 
 Sets a holder function to prevent navigating away from the current route.  If `holder` is unspecified, removes any previously set holder.
 
-When set, a holder will be called when attempting to navigate to a normal (non-action) route.  It will receive a callback as a parameter.  The holder should either return `true` or call the callback (with no arguments) to accept the navigation, or return anything else and not call the callback to prevent navigation.  It should not both return `true` and call the callback (or the navigation will occur twice).  When accepting navigation, the holder is removed and must be set again if needed.
+When set, a holder will be called when attempting to navigate to a normal (non-action) route.  It will receive a callback as a parameter.  The holder should either return `true` or call the callback (with no arguments) to accept the navigation, or return anything else and not call the callback to prevent navigation.  When accepting navigation, the holder is removed and must be set again if needed.
 
 Note: setting a holder only prevents navigation from the router.  It does not prevent navigating to an other page.
 

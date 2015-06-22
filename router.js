@@ -55,7 +55,11 @@ define([], function() {
       return cb();
     }
 
+    var called = false;
     function goOn() {
+      if (called) return;
+
+      called = true;
       currentHolder = null;
       cb();
     }

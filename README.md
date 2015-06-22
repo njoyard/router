@@ -44,7 +44,7 @@ From the handler's point of view, there is no difference between a 'normal' call
 
 ## Action routes
 
-When the first character of a route is `!`, the route is called an **action route**.  Action routes work exactly the same, except they are never pushed on the navigator history.  You should use 'normal' routes for navigation (eg. `article/:id` shows the article), which the user may come back to, and action routes for... well, actions (eg. `article/:id/remove` removes the article) you don't want the user to repeat by hitting the back button.
+When the first character of a route is `!`, the route is called an **action route**.  Action routes work exactly the same, except they are never pushed on the navigator history.  You should use 'normal' routes for navigation, when the user may come back to a route later (eg. `article/:id` shows the article), and action routes for... well, actions you don't want the user to repeat by hitting the back button (eg. `!article/:id/remove` removes the article).
 
 Note that you may not define an action route with the same pattern as a normal route (that is, `articles/:id` and `!articles/:id` for example).
 
